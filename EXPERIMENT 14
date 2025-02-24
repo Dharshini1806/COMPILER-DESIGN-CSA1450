@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_EXPRESSIONS 100
+#define MAX_LENGTH 100
+
+typedef struct {
+    char expression[MAX_LENGTH];
+} Expression;
+
+Expression expressions[MAX_EXPRESSIONS];
+int expressionCount = 0;
+
+// Function to check if an expression already exists
+int isCommonSubexpression(char *expr) {
+    for (int i = 0; i < expressionCount; i++) {
+        if (strcmp(expressions[i].expression, expr) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Function to add an expression if it's not a common subexpression
+void addExpression(char *expr) {
+    if (!isCommonSubexpression(expr)) {
+        strcpy(expressions[expressionCount].expression, expr);
+        expressionCount++;
+    }
+}
+
+// Function to display optimized expressions
+void displayOptimizedCode() {
+    printf("Optimized Code after eliminating common subexpressions:\n");
+    for (int i = 0; i < expressionCount; i++) {
+        printf("%s\n", expressions[i].expression);
+    }
+}
+
+int main() {
+    int n;
+    char expr[MAX_LENGTH];
+
+    printf("Enter the number of expressions: ");
+    scanf("%d", &n);
+    getchar();  // Consume newline
+
+    printf("Enter the expressions (one per line):\n");
+    for (int i = 0; i < n; i++) {
+        fgets(expr, sizeof(expr), stdin);
+        expr[strcspn(expr, "\n")] = '\0';  // Remove newline character
+        addExpression(expr);
+    }
+
+    displayOptimizedCode();
+
+    return 0;
+}
