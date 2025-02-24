@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_IDENTIFIER_LENGTH 31
+
+// Function to check if a character is an operator
+int isOperator(char ch) {
+    char operators[] = "+-*/%=<>!&|";
+    for (int i = 0; operators[i] != '\0'; i++) {
+        if (ch == operators[i])
+            return 1;
+    }
+    return 0;
+}
+
+// Function to skip comments
+void skipComment(FILE *fp) {
+    char ch = fgetc(fp);
+    if (ch == '/') { // Single-line comment
+        printf("Single-line comment detected\n");
+        while ((ch = fgetc(fp)) != '\n' && ch != EOF);
+    } else if (ch == '*') { // Multi-line comment
+        printf("Multi-line comment detected\n");
+        while (1) {
+            ch = fgetc(fp);
+            if (ch == EOF)
+                break;
+            if (ch == '*') {
+                if ((ch = fgetc(fp)) == '/')
+                    break;
+            }
+        }
+    } else {
+        ungetc(ch, fp);
+    }
+}
+
+// Function to check if a line is a comment
+void checkComment(char *line) {
+    if (strncmp(line, "//", 2) == 0) {
+        printf("Line is a single-line comment: %s\n", line);
+    } else if (strncmp(line, "/*", 2) == 0) {
+        printf("Line starts a multi-line comment: %s\n", line);
+    } else {
+        printf("Line is not a comment: %s\n", line);
+    }
+}
+
+// Function to identify tokens
+void tokenize(FILE *fp) {
+    char ch, buffer[MAX_IDENTIFIER_LENGTH + 1];
+    int index = 0;
+
+    while ((ch = fgetc(fp)) != EOF) {
+        if (isspace(ch)) {
+            continue; // Skip whitespace
+        } else if (ch == '/') {
+            char next = fgetc(fp);
+            if (next == '/' || next == '*') {
+                skipComment(fp); // Skip comments
+            } else {
+                ungetc(next, fp);
+                printf("Operator: /\n");
+            }
+        } else if (isalpha(ch) || ch == '_') {
+            // Identifier
+            index = 0;
+            buffer[index++] = ch;
+            while ((ch = fgetc(fp)) != EOF && (isalnum(ch) || ch == '_')) {
+                if (index < MAX_IDENTIFIER_LENGTH) {
+                    buffer[index++] = ch;
+                }
+            }
+            buffer[index] = '\0';
+            ungetc(ch, fp);
+            printf("Identifier: %s\n", buffer);
+        } else if (isdigit(ch)) {
+            // Constant
+            index = 0;
+            buffer[index++] = ch;
+            while ((ch = fgetc(fp)) != EOF && isdigit(ch)) {
+                buffer[index++] = ch;
+            }
+            buffer[index] = '\0';
+            ungetc(ch, fp);
+            printf("Constant: %s\n", buffer);
+        } else if (isOperator(ch)) {
+            // Operator
+            printf("Operator: %c\n", ch);
+        } else {
+            printf("Special character: %c\n", ch);
+        }
+    }
+}
+
+int main() {
+    FILE *fp = fopen("input.c", "r");
+    if (fp == NULL) {
+        printf("Error opening file.\n");
+        return 1;
+    }
+
+    printf("Lexical Analysis:\n");
+    char line[256];
+    while (fgets(line, sizeof(line), fp)) {
+        checkComment(line);
+    }
+
+    fseek(fp, 0, SEEK_SET); // Reset file pointer for tokenization
+    tokenize(fp);
+
+    fclose(fp);
+    return 0;
+}
