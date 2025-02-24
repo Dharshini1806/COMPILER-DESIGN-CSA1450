@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int tempCount = 0;
+
+// Function to generate a new temporary variable
+char* newTemp() {
+    static char temp[10];
+    sprintf(temp, "t%d", tempCount++);
+    return temp;
+}
+
+// Function to generate three address code for simple expressions
+void generateThreeAddressCode(char* expression) {
+    char left[20], right[20], op;
+    int i = 0, j = 0;
+
+    // Extract left side of assignment
+    while (expression[i] != '=' && expression[i] != '\0') {
+        left[j++] = expression[i++];
+    }
+    left[j] = '\0';
+    i++;  // Skip '='
+
+    // Right side of assignment
+    char *rightExpr = expression + i;
+
+    // Process the right expression and generate TAC
+    char operand1[20], operand2[20];
+    j = 0;
+
+    for (int k = 0; rightExpr[k] != '\0'; k++) {
+        if (isalnum(rightExpr[k])) {
+            operand1[j++] = rightExpr[k];
+        } else if (strchr("+-*/", rightExpr[k])) {
+            operand1[j] = '\0';
+            op = rightExpr[k];
+            j = 0;
+            k++;
+            while (isalnum(rightExpr[k])) {
+                operand2[j++] = rightExpr[k++];
+            }
+            operand2[j] = '\0';
+
+            char* temp = newTemp();
+            printf("%s = %s %c %s\n", temp, operand1, op, operand2);
+            strcpy(operand1, temp);
+            j = strlen(operand1);
+        }
+    }
+
+    // Final assignment
+    operand1[j] = '\0';
+    printf("%s = %s\n", left, operand1);
+}
+
+int main() {
+    char expression[100];
+    printf("Enter an expression (e.g., a = b + c * d): ");
+    fgets(expression, sizeof(expression), stdin);
+    expression[strcspn(expression, "\n")] = '\0'; // Remove newline character
+
+    generateThreeAddressCode(expression);
+
+    return 0;
+}
