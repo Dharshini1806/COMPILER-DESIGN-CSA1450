@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <string.h>
+
+void leftFactor(char nonTerminal, char productions[10][10], int n) {
+    char prefix[10];
+    int prefixLen = 0;
+
+    // Find common prefix
+    for (int i = 0; productions[0][i] != '\0'; i++) {
+        char currentChar = productions[0][i];
+        int common = 1;
+        for (int j = 1; j < n; j++) {
+            if (productions[j][i] != currentChar) {
+                common = 0;
+                break;
+            }
+        }
+        if (common)
+            prefix[prefixLen++] = currentChar;
+        else
+            break;
+    }
+    prefix[prefixLen] = '\0';
+
+    if (prefixLen == 0) {
+        printf("No left factoring required for %c\n", nonTerminal);
+        return;
+    }
+
+    printf("%c -> %s%c'\n", nonTerminal, prefix, nonTerminal);
+    printf("%c' -> ", nonTerminal);
+
+    for (int i = 0; i < n; i++) {
+        if (strncmp(productions[i], prefix, prefixLen) == 0) {
+            if (productions[i][prefixLen] == '\0')
+                printf("\u03b5");
+            else
+                printf("%s", productions[i] + prefixLen);
+        }
+        if (i < n - 1)
+            printf(" | ");
+    }
+    printf("\n");
+}
+
+int main() {
+    char nonTerminal;
+    char productions[10][10];
+    int n;
+
+    printf("Enter the non-terminal: ");
+    scanf(" %c", &nonTerminal);
+
+    printf("Enter the number of productions for %c: ", nonTerminal);
+    scanf("%d", &n);
+
+    printf("Enter the productions (one per line, without the non-terminal and ->):\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%s", productions[i]);
+    }
+
+    leftFactor(nonTerminal, productions, n);
+
+    return 0;
+}
