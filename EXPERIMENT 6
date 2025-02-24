@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <string.h>
+
+void eliminateLeftRecursion(char nonTerminal, char alpha[10][10], int alphaCount, char beta[10][10], int betaCount) {
+    if (alphaCount == 0) {
+        printf("No left recursion for %c\n", nonTerminal);
+        return;
+    }
+
+    char newNonTerminal = nonTerminal + 1;
+
+    for (int i = 0; i < betaCount; i++) {
+        printf("%c -> %s%c\n", nonTerminal, beta[i], newNonTerminal);
+    }
+
+    for (int i = 0; i < alphaCount; i++) {
+        printf("%c -> %s%c\n", newNonTerminal, alpha[i] + 1, newNonTerminal);
+    }
+
+    printf("%c -> ε\n", newNonTerminal);
+}
+
+int main() {
+    char nonTerminal;
+    char productions[10][10];
+    int n;
+
+    printf("Enter the non-terminal: ");
+    scanf(" %c", &nonTerminal);
+
+    printf("Enter the number of productions for %c: ", nonTerminal);
+    scanf("%d", &n);
+
+    printf("Enter the productions (one per line, without the non-terminal and ->):\n");
+    char alpha[10][10], beta[10][10];
+    int alphaCount = 0, betaCount = 0;
+
+    for (int i = 0; i < n; i++) {
+        scanf("%s", productions[i]);
+        if (productions[i][0] == nonTerminal) {
+            strcpy(alpha[alphaCount++], productions[i]);
+        } else {
+            strcpy(beta[betaCount++], productions[i]);
+        }
+    }
+
+    eliminateLeftRecursion(nonTerminal, alpha, alphaCount, beta, betaCount);
+
+    return 0;
+}
