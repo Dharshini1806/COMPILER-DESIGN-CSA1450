@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int precedence(char operator) {
+    switch (operator) {
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2;
+        case '^':
+            return 3;
+        default:
+            return 0;
+    }
+}
+
+int applyOperation(int a, int b, char operator) {
+    switch (operator) {
+        case '+': return a + b;
+        case '-': return a - b;
+        case '*': return a * b;
+        case '/': return a / b;
+        case '^': {
+            int result = 1;
+            for (int i = 0; i < b; i++)
+                result *= a;
+            return result;
+        }
+        default: return 0;
+    }
+}
+
+int evaluateExpression(const char* expression) {
+    int values[100], valueTop = -1;
+    char operators[100];
+    int operatorTop = -1;
+
+    for (int i = 0; expression[i] != '\0'; i++) {
+        if (isspace(expression[i]))
+            continue;
+
+        if (isdigit(expression[i])) {
+            int value = 0;
+            while (isdigit(expression[i])) {
+                value = (value * 10) + (expression[i] - '0');
+                i++;
+            }
+            i--;
+            values[++valueTop] = value;
+        } else if (expression[i] == '(') {
+            operators[++operatorTop] = expression[i];
+        } else if (expression[i] == ')') {
+            while (operatorTop != -1 && operators[operatorTop] != '(') {
+                int b = values[valueTop--];
+                int a = values[valueTop--];
+                char operator = operators[operatorTop--];
+                values[++valueTop] = applyOperation(a, b, operator);
+            }
+            operatorTop--;
+        } else {
+            while (operatorTop != -1 && precedence(operators[operatorTop]) >= precedence(expression[i])) {
+                int b = values[valueTop--];
+                int a = values[valueTop--];
+                char operator = operators[operatorTop--];
+                values[++valueTop] = applyOperation(a, b, operator);
+            }
+            operators[++operatorTop] = expression[i];
+        }
+    }
+
+    while (operatorTop != -1) {
+        int b = values[valueTop--];
+        int a = values[valueTop--];
+        char operator = operators[operatorTop--];
+        values[++valueTop] = applyOperation(a, b, operator);
+    }
+
+    return values[valueTop];
+}
+
+int main() {
+    char expression[100];
+    printf("Enter an expression to evaluate (e.g., (3+5)*2): ");
+    scanf("%[^"]s", expression);
+
+    int result = evaluateExpression(expression);
+    printf("The result of the expression is: %d\n", result);
+
+    return 0;
+}
