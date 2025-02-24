@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+// Function to check if a string is a valid identifier (simple grammar example)
+int isValidIdentifier(const char *str) {
+    if (!isalpha(str[0]) && str[0] != '_') {
+        return 0; // First character must be an alphabet or underscore
+    }
+    for (int i = 1; str[i] != '\0'; i++) {
+        if (!isalnum(str[i]) && str[i] != '_') {
+            return 0; // Remaining characters must be alphanumeric or underscore
+        }
+    }
+    return 1;
+}
+
+// Function to check if a string satisfies simple grammar: <id> = <id> + <id>
+int isValidExpression(const char *str) {
+    char left[50], op[10], right[50];
+    if (sscanf(str, "%49s = %49s %9s %49s", left, left, op, right) == 4) {
+        if (isValidIdentifier(left) && strcmp(op, "+") == 0 && isValidIdentifier(right)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int main() {
+    char input[100];
+
+    printf("Enter an input string to check against the grammar (e.g., a = b + c):\n");
+    fgets(input, sizeof(input), stdin);
+    input[strcspn(input, "\n")] = '\0'; // Remove newline character
+
+    if (isValidExpression(input)) {
+        printf("The input string satisfies the grammar.\n");
+    } else {
+        printf("The input string does not satisfy the grammar.\n");
+    }
+
+    return 0;
+}
