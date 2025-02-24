@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <ctype.h>
+
+int main() {
+    FILE *file;
+    char filename[100], ch;
+    int charCount = 0, wordCount = 0, lineCount = 0;
+    int inWord = 0;
+
+    // Get filename from user
+    printf("Enter the filename: ");
+    scanf("%s", filename);
+
+    // Open the file in read mode
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Could not open file %s\n", filename);
+        return 1;
+    }
+
+    // Read characters from file and count
+    while ((ch = fgetc(file)) != EOF) {
+        charCount++;
+
+        if (ch == '\n') {
+            lineCount++;
+        }
+
+        if (isspace(ch)) {
+            inWord = 0;
+        } else if (!inWord) {
+            inWord = 1;
+            wordCount++;
+        }
+    }
+
+    // If the last line doesn't end with a newline
+    if (charCount > 0 && ch != '\n') {
+        lineCount++;
+    }
+
+    // Close the file
+    fclose(file);
+
+    // Display results
+    printf("Number of characters: %d\n", charCount);
+    printf("Number of words: %d\n", wordCount);
+    printf("Number of lines: %d\n", lineCount);
+
+    return 0;
+}
