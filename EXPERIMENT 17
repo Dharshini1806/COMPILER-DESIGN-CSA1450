@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int tempCount = 0;
+
+// Function to generate a new temporary variable
+char* newTemp() {
+    static char temp[10];
+    sprintf(temp, "t%d", tempCount++);
+    return temp;
+}
+
+// Function to generate assembly-like code from three-address code
+void generateAssembly(const char* lhs, const char* op1, const char* operator, const char* op2) {
+    printf("MOV R0, %s\n", op1);
+    if (strcmp(operator, "+") == 0) {
+        printf("ADD R0, %s\n", op2);
+    } else if (strcmp(operator, "-") == 0) {
+        printf("SUB R0, %s\n", op2);
+    } else if (strcmp(operator, "*") == 0) {
+        printf("MUL R0, %s\n", op2);
+    } else if (strcmp(operator, "/") == 0) {
+        printf("DIV R0, %s\n", op2);
+    } else {
+        printf("Unsupported operator: %s\n", operator);
+        return;
+    }
+    printf("MOV %s, R0\n", lhs);
+}
+
+int main() {
+    char expression[100];
+    char lhs[20], op1[20], op2[20], operator[3];
+
+    printf("Enter an expression (e.g., a = b + c): ");
+    fgets(expression, sizeof(expression), stdin);
+    expression[strcspn(expression, "\n")] = '\0'; // Remove newline character
+
+    if (sscanf(expression, "%s = %s %2s %s", lhs, op1, operator, op2) == 4) {
+        printf("\nGenerated Assembly-like Code:\n");
+        generateAssembly(lhs, op1, operator, op2);
+    } else {
+        printf("Invalid expression format. Please enter in the format 'a = b + c'.\n");
+    }
+
+    return 0;
+}
