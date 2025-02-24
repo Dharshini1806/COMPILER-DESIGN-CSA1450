@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_SYMBOLS 100
+
+typedef struct {
+    char name[50];
+    char type[20];
+    int size;
+    int address;
+} Symbol;
+
+Symbol symbolTable[MAX_SYMBOLS];
+int symbolCount = 0;
+
+void insertSymbol(char *name, char *type, int size, int address) {
+    for (int i = 0; i < symbolCount; i++) {
+        if (strcmp(symbolTable[i].name, name) == 0) {
+            printf("Symbol '%s' already exists in the symbol table.\n", name);
+            return;
+        }
+    }
+
+    strcpy(symbolTable[symbolCount].name, name);
+    strcpy(symbolTable[symbolCount].type, type);
+    symbolTable[symbolCount].size = size;
+    symbolTable[symbolCount].address = address;
+    symbolCount++;
+
+    printf("Symbol '%s' inserted successfully.\n", name);
+}
+
+void displaySymbolTable() {
+    printf("\nSymbol Table:\n");
+    printf("%-10s %-10s %-10s %-10s\n", "Name", "Type", "Size", "Address");
+    printf("----------------------------------------\n");
+    for (int i = 0; i < symbolCount; i++) {
+        printf("%-10s %-10s %-10d %-10d\n",
+               symbolTable[i].name,
+               symbolTable[i].type,
+               symbolTable[i].size,
+               symbolTable[i].address);
+    }
+}
+
+int searchSymbol(char *name) {
+    for (int i = 0; i < symbolCount; i++) {
+        if (strcmp(symbolTable[i].name, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void deleteSymbol(char *name) {
+    int index = searchSymbol(name);
+    if (index == -1) {
+        printf("Symbol '%s' not found in the symbol table.\n", name);
+        return;
+    }
+
+    for (int i = index; i < symbolCount - 1; i++) {
+        symbolTable[i] = symbolTable[i + 1];
+    }
+    symbolCount--;
+    printf("Symbol '%s' deleted successfully.\n", name);
+}
+
+int main() {
+    int choice;
+    char name[50], type[20];
+    int size, address;
+
+    while (1) {
+        printf("\nSymbol Table Operations:\n");
+        printf("1. Insert Symbol\n");
+        printf("2. Display Symbol Table\n");
+        printf("3. Search Symbol\n");
+        printf("4. Delete Symbol\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter symbol name: ");
+                scanf("%s", name);
+                printf("Enter symbol type: ");
+                scanf("%s", type);
+                printf("Enter symbol size: ");
+                scanf("%d", &size);
+                printf("Enter symbol address: ");
+                scanf("%d", &address);
+                insertSymbol(name, type, size, address);
+                break;
+
+            case 2:
+                displaySymbolTable();
+                break;
+
+            case 3:
+                printf("Enter symbol name to search: ");
+                scanf("%s", name);
+                int index = searchSymbol(name);
+                if (index != -1) {
+                    printf("Symbol '%s' found at index %d.\n", name, index);
+                } else {
+                    printf("Symbol '%s' not found.\n", name);
+                }
+                break;
+
+            case 4:
+                printf("Enter symbol name to delete: ");
+                scanf("%s", name);
+                deleteSymbol(name);
+                break;
+
+            case 5:
+                exit(0);
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
+}
