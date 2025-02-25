@@ -1,0 +1,29 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+%}
+
+%%
+
+^[aeiouAEIOU][a-zA-Z]* {
+    printf("Valid: String starts with a vowel -> %s\n", yytext);
+}
+
+[a-zA-Z]+ {
+    printf("Invalid: String does not start with a vowel -> %s\n", yytext);
+}
+
+[ \t\n]+    ; /* Ignore whitespaces and newlines */
+.           { printf("Invalid character: %s\n", yytext); }
+
+%%
+
+int main() {
+    printf("Enter strings to check (Ctrl+D to end input):\n");
+    yylex();
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
