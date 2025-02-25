@@ -1,49 +1,46 @@
+%{
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 
-int tempCount = 0;
+int macro_count = 0;
+int header_count = 0;
+%}
 
-// Function to generate a new temporary variable
-char* newTemp() {
-    static char temp[10];
-    sprintf(temp, "t%d", tempCount++);
-    return temp;
-}
+%%
 
-// Function to generate assembly-like code from three-address code
-void generateAssembly(const char* lhs, const char* op1, const char* operator, const char* op2) {
-    printf("MOV R0, %s\n", op1);
-    if (strcmp(operator, "+") == 0) {
-        printf("ADD R0, %s\n", op2);
-    } else if (strcmp(operator, "-") == 0) {
-        printf("SUB R0, %s\n", op2);
-    } else if (strcmp(operator, "*") == 0) {
-        printf("MUL R0, %s\n", op2);
-    } else if (strcmp(operator, "/") == 0) {
-        printf("DIV R0, %s\n", op2);
-    } else {
-        printf("Unsupported operator: %s\n", operator);
-        return;
+^#define[ \t]+[a-zA-Z_][a-zA-Z0-9_]*[ \t]+.* { macro_count++; } /* Count #define macros */
+^#include[ \t]+[<"][a-zA-Z0-9_.]+[">]         { header_count++; } /* Count #include headers */
+
+[ \t\n]+                { /* Ignore spaces, tabs, and newlines */ }
+.                       { /* Ignore other characters */ }
+
+%%
+
+int main(int argc, char *argv[]) {
+    FILE *input;
+
+    if (argc != 2) {
+        printf("Usage: %s <input_file.c>\n", argv[0]);
+        return 1;
     }
-    printf("MOV %s, R0\n", lhs);
-}
 
-int main() {
-    char expression[100];
-    char lhs[20], op1[20], op2[20], operator[3];
-
-    printf("Enter an expression (e.g., a = b + c): ");
-    fgets(expression, sizeof(expression), stdin);
-    expression[strcspn(expression, "\n")] = '\0'; // Remove newline character
-
-    // Scan expression with better format handling
-    if (sscanf(expression, "%19s = %19s %2s %19s", lhs, op1, operator, op2) == 4) {
-        printf("\nGenerated Assembly-like Code:\n");
-        generateAssembly(lhs, op1, operator, op2);
-    } else {
-        printf("Invalid expression format. Please enter in the format 'a = b + c'.\n");
+    input = fopen(argv[1], "r");
+    if (!input) {
+        perror("Error opening input file");
+        return 1;
     }
+
+    yyin = input;
+    yylex();
+    fclose(input);
+
+    printf("\nNumber of Macros Defined: %d\n", macro_count);
+    printf("Number of Header Files Included: %d\n", header_count);
 
     return 0;
 }
+
+int yywrap() {
+    return 1;
+}
+
