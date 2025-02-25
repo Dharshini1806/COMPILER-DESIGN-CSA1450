@@ -1,0 +1,32 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+%}
+
+%%
+
+[0-9]+ {
+    printf("Digit: %s\n", yytext);
+}
+
+[a-zA-Z]+ {
+    printf("Not a digit (Word): %s\n", yytext);
+}
+
+. {
+    printf("Not a digit (Symbol): %s\n", yytext);
+}
+
+[ \t\n]+ ; /* Ignore whitespaces and newlines */
+
+%%
+
+int main() {
+    printf("Enter input to check for digits (Ctrl+D to end input):\n");
+    yylex();
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
