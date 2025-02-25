@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <ctype.h>
+
+void countVowelsAndConsonants(char sentence[]) {
+    int vowel_count = 0, consonant_count = 0;
+    char ch;
+
+    for (int i = 0; sentence[i] != '\0'; i++) {
+        ch = tolower(sentence[i]);  // Convert to lowercase for uniformity
+
+        if (isalpha(ch)) {          // Check if it's an alphabet character
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+                vowel_count++;
+            } else {
+                consonant_count++;
+            }
+        }
+    }
+
+    printf("Number of Vowels: %d\n", vowel_count);
+    printf("Number of Consonants: %d\n", consonant_count);
+}
+
+int main() {
+    char sentence[500];
+
+    printf("Enter a sentence: ");
+    fgets(sentence, sizeof(sentence), stdin);  // Read the entire line
+
+    countVowelsAndConsonants(sentence);
+
+    return 0;
+}
