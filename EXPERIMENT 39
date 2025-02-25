@@ -1,0 +1,41 @@
+%{
+#include <stdio.h>
+#include <string.h>
+
+char old_word[100], new_word[100];
+
+%}
+
+%%
+
+{old} {
+    printf("%s", new_word); /* Replace the old word with the new word */
+}
+
+.|\n {
+    putchar(yytext[0]); /* Print other characters as they are */
+}
+
+%%
+
+int main() {
+    printf("Enter the word to replace: ");
+    scanf("%s", old_word);
+
+    printf("Enter the new word: ");
+    scanf("%s", new_word);
+
+    /* Create the pattern for the old word */
+    char pattern[150];
+    snprintf(pattern, sizeof(pattern), "%s", old_word);
+
+    /* Process the input file */
+    printf("\nEnter the input text (Ctrl+D to end input):\n");
+    yylex();
+
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
