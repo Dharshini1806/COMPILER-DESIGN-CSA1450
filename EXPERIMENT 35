@@ -1,0 +1,28 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+int result = 0;
+%}
+
+%%
+
+[0-9]+      { printf("Number: %s\n", yytext); }
+"+"         { printf("Operator: Addition (+)\n"); }
+"-"         { printf("Operator: Subtraction (-)\n"); }
+"*"         { printf("Operator: Multiplication (*)\n"); }
+"/"         { printf("Operator: Division (/)\n"); }
+[ \t\n]+    ; /* Ignore whitespaces and newlines */
+.           { printf("Invalid character: %s\n", yytext); }
+
+%%
+
+int main() {
+    printf("Enter a mathematical expression (Ctrl+D to end input):\n");
+    yylex();
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
