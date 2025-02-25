@@ -1,0 +1,22 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+%}
+
+%%
+
+abc         { printf("ABC"); } /* Convert abc to ABC */
+.           { printf("%c", yytext[0]); } /* Print other characters as-is */
+[ \t\n]     { printf("%s", yytext); } /* Handle whitespaces and newlines */
+
+%%
+
+int main() {
+    printf("Enter the input string (Ctrl+D to end input):\n");
+    yylex();
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
